@@ -1,0 +1,430 @@
+Program.Sub.ScreenSU.Start
+Gui.Form..Create
+Gui.Form..Size(20970,14070)
+Gui.Form..MinX(0)
+Gui.Form..MinY(0)
+Gui.Form..Position(0,0)
+Gui.Form..BackColor(-2147483633)
+Gui.Form..MousePointer(0)
+Gui.Form..Event(UnLoad,Form_UnLoad)
+Gui.Form..FontSize(16)
+Gui.Form..Caption("Work Order Changes Dashboard")
+Gui.Form.GsWOChanges.Create(GsGridControl)
+Gui.Form.GsWOChanges.Size(20715,12375)
+Gui.Form.GsWOChanges.Position(15,1275)
+Gui.Form.dtp1.Create(DatePicker)
+Gui.Form.dtp1.Size(1935,195)
+Gui.Form.dtp1.Position(15135,285)
+Gui.Form.dtp2.Create(DatePicker)
+Gui.Form.dtp2.Size(1935,195)
+Gui.Form.dtp2.Position(17610,270)
+Gui.Form.txt1.Create(TextBox,"From:",True,510,195,0,14580,330,True,0,"Arial",8,-2147483644,0)
+Gui.Form.txt1.Locked(True)
+Gui.Form.txt2.Create(TextBox,"To:",True,315,195,0,17265,330,True,0,"Arial",8,-2147483618,0)
+Gui.Form.txt2.Locked(True)
+Gui.Form.cmd1.Create(Button)
+Gui.Form.cmd1.Size(855,375)
+Gui.Form.cmd1.Position(19695,180)
+Gui.Form.cmd1.Caption("Refresh")
+Gui.Form.cmd1.BackColor(-2147483632)
+Gui.Form.cmd1.Event(Click,cmd1_Click)
+Gui.Form.chk1.Create(CheckBox)
+Gui.Form.chk1.Size(1560,360)
+Gui.Form.chk1.Position(17880,615)
+Gui.Form.chk1.Caption("All Dates")
+Gui.Form.picGSSLogo.Create(PictureBox)
+Gui.Form.picGSSLogo.Size(4635,1155)
+Gui.Form.picGSSLogo.Position(7830,75)
+Gui.Form.chkSeqPart.Create(CheckBox)
+Gui.Form.chkSeqPart.Size(1560,360)
+Gui.Form.chkSeqPart.Position(120,15)
+Gui.Form.chkSeqPart.Caption("Part (Sequence)")
+Gui.Form.chkWC.Create(CheckBox)
+Gui.Form.chkWC.Size(1560,360)
+Gui.Form.chkWC.Position(120,300)
+Gui.Form.chkWC.Caption("Workcenter")
+Gui.Form.chkQTY.Create(CheckBox)
+Gui.Form.chkQTY.Size(1560,360)
+Gui.Form.chkQTY.Position(120,600)
+Gui.Form.chkQTY.Caption("Quantity")
+Gui.Form.chkAll.Create(CheckBox)
+Gui.Form.chkAll.Size(1560,360)
+Gui.Form.chkAll.Position(1680,900)
+Gui.Form.chkAll.Caption("All Changes")
+Gui.Form.chkPartHdr.Create(CheckBox)
+Gui.Form.chkPartHdr.Size(1560,360)
+Gui.Form.chkPartHdr.Position(120,900)
+Gui.Form.chkPartHdr.Caption("Part (Header)")
+Gui.Form.chkDateDue.Create(CheckBox)
+Gui.Form.chkDateDue.Size(1560,360)
+Gui.Form.chkDateDue.Position(1680,15)
+Gui.Form.chkDateDue.Caption("Due Date")
+Gui.Form.chkBurden.Create(CheckBox)
+Gui.Form.chkBurden.Size(1560,360)
+Gui.Form.chkBurden.Position(1680,600)
+Gui.Form.chkBurden.Caption("Burden")
+Gui.Form.chkUnit.Create(CheckBox)
+Gui.Form.chkUnit.Size(1560,360)
+Gui.Form.chkUnit.Position(1680,300)
+Gui.Form.chkUnit.Caption("UM")
+Gui.Form.cmd2.Create(Button)
+Gui.Form.cmd2.Size(855,375)
+Gui.Form.cmd2.Position(19680,615)
+Gui.Form.cmd2.Caption("Export")
+Gui.Form.cmd2.Event(Click,cmdExport_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Error Handler
+F.Intrinsic.Control.Try
+V.Local.sError.Declare(String, "")
+
+'Variable Declaration
+V.Local.sGssLogo.Declare
+
+F.Intrinsic.String.Build("{0}\ART\GAB_GSS_Logo_Green_Dash.png",V.Caller.GlobalDir,V.Local.sGssLogo)
+Gui.Form.picGSSLogo.Picture(V.Local.sGssLogo)
+
+'Allows grid control to expand with screen
+Gui.Form.GsWOChanges.Anchor(15)
+Gui.Form.picGSSLogo.Anchor(1)
+Gui.Form.txt1.Anchor(9)
+Gui.Form.txt2.Anchor(9)
+Gui.Form.dtp1.Anchor(9)
+Gui.Form.dtp2.Anchor(9)
+Gui.Form.cmd1.Anchor(9)
+Gui.Form.chk1.Anchor(9)
+
+Gui.Form..Show
+
+'Error Handler
+F.Intrinsic.Control.Catch
+	F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+F.Intrinsic.Control.EndTry
+
+Program.Sub.Main.End
+
+Program.Sub.cmd1_Click.Start
+'Declare Variables
+V.Local.dtWOChanges.Declare(String, "dtWOChanges")
+V.Local.dFromDate.Declare
+V.Local.sFromDate.Declare
+V.Local.dToDate.Declare
+V.Local.sToDate.Declare
+V.Local.dDateTime.Declare
+V.Local.dDate.Declare
+V.Local.bAllDates.Declare
+V.Local.iCount.Declare
+V.Local.sChangesString.Declare
+V.Local.sSQL.Declare
+V.Local.sFilter.Declare
+v.Local.sFilterFinal.Declare
+
+'Write sFilter as string
+F.Intrinsic.Control.If(V.Screen.Form!chkAll.CheckedAsBoolean.Not)
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkSeqPart.CheckedAsBoolean)
+		V.Local.sFilter.Set(F.Intrinsic.String.Build("{0}'Part', ", V.Local.sFilter, V.Local.sFilter))
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkQTY.CheckedAsBoolean)
+		V.Local.sFilter.Set(F.Intrinsic.String.Build("{0}'Quantity', ", V.Local.sFilter, V.Local.sFilter))
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkWC.CheckedAsBoolean)
+		F.Intrinsic.String.Build("{0}'Workcenter', ", V.Local.sFilter, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkPartHdr.CheckedAsBoolean)
+		F.Intrinsic.String.Build("{0}'Part~#', ", V.Local.sFilter, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkDateDue.CheckedAsBoolean)
+		F.Intrinsic.String.Build("{0}'Date~Due', ", V.Local.sFilter, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkUnit.CheckedAsBoolean)
+		F.Intrinsic.String.Build("{0}'Unit', ", V.Local.sFilter, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+	
+	F.Intrinsic.Control.If(V.Screen.Form!chkBurden.CheckedAsBoolean)
+		F.Intrinsic.String.Build("{0}'Burden', ", V.Local.sFilter, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+	
+	'Format end of string
+	F.Intrinsic.String.LimitSplit(V.Local.sFilter,1,V.Local.sFilter)
+	F.Intrinsic.Variable.RemoveArrayElementByOrdinal(V.Local.sFilter,V.Local.sFilter.UBound,V.Local.sFilter)
+	F.Intrinsic.Variable.RemoveArrayElementByOrdinal(V.Local.sFilter,V.Local.sFilter.UBound,V.Local.sFilter)
+	F.Intrinsic.String.Join(V.Local.sFilter,"",V.Local.sFilter)
+	
+	F.Intrinsic.String.Build("AND FIELD_NAME IN ({0})", V.Local.sFilter, V.Local.sFilterFinal)
+	F.Intrinsic.String.Replace(V.Local.sFilterFinal,"~"," ",V.Local.sFilterFinal)
+	
+F.Intrinsic.Control.Else
+	V.Local.sFilterFinal.Set("AND A.FIELD_NAME <> 'SK Date MDY' AND A.FIELD_NAME <> 'ST Date MDY' AND A.FIELD_NAME <> 'SK Date Year' AND A.FIELD_NAME <> 'ST Date Year' AND A.FIELD_NAME <> 'Start Date' AND A.FIELD_NAME <> 'Due Date' AND A.FIELD_NAME <> 'Flow Flag' AND A.FIELD_NAME <> 'Date Closed' AND A.FIELD_NAME <> 'Date Start' AND A.FIELD_NAME <> 'Router Printed'")
+F.Intrinsic.Control.EndIf
+
+'dtp1 From date, dtp2 To date
+V.Local.dFromDate.Set(V.Screen.Form!dtp1.Value)
+V.Local.dToDate.Set(V.Screen.Form!dtp2.Value)
+
+'Format Dates
+F.Intrinsic.String.Format(V.Local.dFromDate, "yyyy-mm-dd", V.Local.sFromDate)
+F.Intrinsic.String.Format(V.Local.dToDate, "yyyy-mm-dd", V.Local.sToDate)
+
+'Populate datatable
+'Date Range
+F.Intrinsic.Control.If(V.Screen.Form!chk1.CheckedAsBoolean.Not)
+	F.Intrinsic.String.Build("SELECT A.JOB, A.SUFFIX, A.RECORD_NO, B.PROJECT, B.PHASE, A.CHANGE_DATE, A.CHANGE_TIME, B.PART, B.DESCRIPTION, A.FIELD_NAME AS FIELD_NAME, A.BEFORE AS BEFORE, A.AFTER AS AFTER, A.USER_ID, C.USER_1, C.USER_2, C.USER_3 FROM V_JOB_DIFFERENCE A LEFT JOIN V_JOB_HEADER B ON A.JOB = B.JOB AND A.SUFFIX = B.SUFFIX LEFT JOIN V_WO_USER_FLDS C ON A.JOB = C.JOB AND A.SUFFIX = C.SUFFIX WHERE A.AFTER <> '' AND A.BEFORE <> '' AND CHANGE_DATE BETWEEN '{0}' AND '{1}' {2} ORDER BY A.CHANGE_DATE DESC, A.CHANGE_TIME DESC", V.Local.sFromDate, v.Local.sToDate, V.Local.sFilterFinal, V.Local.sSQL)
+'All Dates
+F.Intrinsic.Control.Else
+	F.Intrinsic.String.Build("SELECT A.JOB, A.SUFFIX, A.RECORD_NO, B.PROJECT, B.PHASE, A.CHANGE_DATE, A.CHANGE_TIME, B.PART, B.DESCRIPTION, A.FIELD_NAME AS FIELD_NAME, A.BEFORE AS BEFORE, A.AFTER AS AFTER, A.USER_ID, C.USER_1, C.USER_2, C.USER_3 FROM V_JOB_DIFFERENCE A LEFT JOIN V_JOB_HEADER B ON A.JOB = B.JOB AND A.SUFFIX = B.SUFFIX LEFT JOIN V_WO_USER_FLDS C ON A.JOB = C.JOB AND A.SUFFIX = C.SUFFIX WHERE A.AFTER <> '' AND A.BEFORE <> '' {0} ORDER BY A.CHANGE_DATE DESC, A.CHANGE_TIME DESC", V.Local.sFilterFinal, V.Local.sSQL)
+F.Intrinsic.Control.EndIf
+
+'Get Data
+F.ODBC.Connection!myCon.OpenCompanyConnection(600)
+F.Data.DataTable.CreateFromSQL(V.Local.dtWOChanges, myCon, v.Local.sSQL)
+F.ODBC.Connection!myCon.Close
+
+'Add column to data table
+F.Data.DataTable.AddExpressionColumn(V.Local.dtWOChanges,"CHANGE","String","TRIM([FIELD_NAME]) + ' changed from '+ TRIM([BEFORE]) + ' to ' + TRIM([AFTER]) + '.'")
+
+Gui.Form.GsWOChanges.AddGridviewFromDatatable("gvWOChanges","dtWOChanges")
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","MultiSelect",True)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","AllowSort",True)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","AllowFilter",True)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","Editable",False)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","ReadOnly",True)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","OptionsDetailShowDetailTabs",False)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","OptionsViewShowGroupPanel",True)
+Gui.Form.GsWOChanges.SetGridViewProperty("gvWOChanges","OptionsViewColumnAutoWidth",False)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","JOB","Caption","Work Order")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","JOB","Width", 90)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","SUFFIX","Caption","Suffix")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","SUFFIX","Width", 60)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","RECORD_NO","Caption","Sequence")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","RECORD_NO","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","PROJECT","Caption","Project")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PROJECT","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","PHASE","Caption","Phase")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PHASE","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","CHANGE_DATE","Caption","Change Date")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_DATE","Width", 150)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","CHANGE_TIME","Caption","Change Time")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE_TIME","Width", 100)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","PART","Caption","Mfg Part")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","PART","Width", 160)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","DESCRIPTION","Caption","Mfg Description")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","DESCRIPTION","Width", 250)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","FIELD_NAME","Caption","Change")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","FIELD_NAME","Width", 140)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","BEFORE","Caption","Before")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","BEFORE","Width", 160)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","AFTER","Caption","After")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","AFTER","Width", 160)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","USER_ID","Caption","User ID")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_ID","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","USER_1","Caption","User 1")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_1","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","USER_2","Caption","User 2")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_2","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","USER_3","Caption","User 3")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","CellHAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","USER_3","Width", 80)
+
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOCHanges","CHANGE","Caption","Change Explanation")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","HeaderFontBold", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","HeaderFontSize", 10)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","HeaderVAlignment", "Center")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","CellFontSize", 8)
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","CellHAlignment", "Near")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","AllowSort", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","AllowFilter", "True")
+Gui.Form.GsWOChanges.SetColumnProperty("gvWOChanges","CHANGE","Width", 400)
+
+Gui.Form.GsWOChanges.MainView("gvWOChanges")
+
+Program.Sub.cmd1_Click.End
+
+Program.Sub.Form_UnLoad.Start
+F.Intrinsic.Control.End
+
+Program.Sub.Form_UnLoad.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.End
+F.ODBC.Connection!myCon.Close
+
+Program.Sub.Unload.End
+
+Program.Sub.cmdExport_Click.Start
+F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+	V.Local.sFileExport.Declare
+	V.Local.bExcel.Declare
+	V.Local.bFileLocked.Declare
+	V.Local.sMsg.Declare
+
+	F.Automation.MSExcel.CheckPresence(V.Local.bExcel)
+
+	F.Intrinsic.Control.If(V.Local.bExcel)
+		F.Intrinsic.String.Build("{0}GAB_5811_WO_Difference.xlsx",V.Caller.LocalGssTempDir,V.Local.sFileExport)
+		F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+		F.Intrinsic.Control.If(V.Local.bFileLocked)
+			F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+		F.Intrinsic.Control.Else	
+			Gui.Form.GsWOChanges.Export(V.Local.sFileExport,"xlsx")
+			F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.Else
+		F.Intrinsic.String.Build("{0}GAB_5811_WO_Difference.csv",V.Caller.LocalGssTempDir,V.Local.sFileExport)
+		F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+		F.Intrinsic.Control.If(V.Local.bFileLocked)
+			F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+			F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+		F.Intrinsic.Control.Else
+			Gui.Form.GsWOChanges.Export(V.Local.sFileExport,"csv")
+		F.Intrinsic.Control.EndIf
+		F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+	F.Intrinsic.Control.EndIf
+	
+F.Intrinsic.Control.Catch
+	F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub("Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdExport_Click.End
